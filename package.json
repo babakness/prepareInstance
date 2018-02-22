@@ -1,0 +1,38 @@
+{
+  "name": "prepare-instance",
+  "version": "0.0.1",
+  "description": "A library to create an effecient functional instance of a container with desired instance and class methods.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "test-watch": "npm run test -- --watch",
+    "test": "ava",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "functional",
+    "container",
+    "instance"
+  ],
+  "author": "",
+  "license": "ISC",
+  "@std/esm": {
+    "esm": "js",
+    "cjs": true,
+    "await": true
+  },
+  "ava": {
+    "require": [
+      "@std/esm"
+    ]
+  },
+  "dependencies": {
+    "@std/esm": "^0.16.0"
+  },
+  "devDependencies": {
+    "ava": "^0.23.0",
+    "webpack": "^4.0.0-beta.2",
+    "webpack-cli": "^2.0.6",
+    "nodemon": "^1.12.1"
+  }
+}
