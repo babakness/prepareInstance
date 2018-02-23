@@ -1,7 +1,7 @@
 {
   "name": "prepare-instance",
   "version": "0.0.1",
-  "description": "A library to create an effecient functional instance of a container with desired instance and class methods.",
+  "description": "A function to create an effecient functional instance of a container with desired instance and class methods.",
   "main": "dist/main.js",
   "scripts": {
     "build": "webpack --mode production",
