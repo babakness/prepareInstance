@@ -10,35 +10,89 @@ const assoc = prop => value => obj => Object.assign({},obj,{[prop]: value})
 const flip = f => a => b => f(b)(a)
 const assocValueObjectFlip = prop => flip(assoc(prop))
 
+const endofunctorCheck = (value,functor, errorMessage = 'This Monad is no longer an Endofunctor', errorFatal = true) => {
+  if( !(value instanceof functor) ) { 
+    if(errorFatal){ throw errorMessage } else { console.error() }
+  }
+  return value
+}
+
 const IdentityIM = functor => ({
   // Functor
   map:       ( x, fn )   => functors[ functor ]( fn(x) ),
   // Applicative
   ap:        ( x, fn )   => fn.map( x ),
-  // Monad
-  join:      ( x )       => x,
-  chain:     ( x, fn )   => functors[ functor ].map( x, fn ).join( x ),
 
+  // Monoid
+  concat:    ( x, y )    => x.concat( y ),
+  empty:     ( x )       => functors[ functor ]( x ),
+
+  // Monad
+  chain:     ( x, fn )   => endofunctorCheck(
+                            functors[ functor ].map( x, fn ).join( x ), 
+                            functors[ functor ]
+                          ),
+                          
+  // other methods
   fold:      ( x, fn )   => fn( x ), // Identity fold is like chain
+  join:      ( x )       => x,
 
   // Extra
   inspect:   ( x )       => `${ functor }`,
   valueOf:   ( x )       => x
 })
 
-const IdentitySM = functor => ({ of: ( x ) => functors[ functor ]( x )})
+const ConstIM = functor => ({
+  // Functor
+  map:       ( x, fn )   => functors[ functor ]( x ),
+  // Applicative
+  ap:        ( x, fn )   => functors[ functor ]( x ),
+
+  // Monoid
+  concat:    ( x, y )    => functors[ functor ]( x ),
+  empty:     ( x )       => functors[ functor ]( x ),
+
+  // Monad
+  chain:     ( x, fn )   => functors[ functor ]( x ),
+                          
+  // other methods
+  fold:      ( x, fn )   => fn( x ), // Identity fold is like chain
+  join:      ( x )       => x,
+
+  // Extra
+  inspect:   ( x )       => `${ functor }`,
+  valueOf:   ( x )       => x
+})
+
+const IdentitySM = functor => ({ 
+  of: ( x ) => functors[ functor ]( x ), 
+  concat: ( x ) => functors[ functor ]( x ) , 
+  empty: () =>  functors[ functor ] 
+})
 
 const IdentityMethodsWithName = parallel( IdentityIM, IdentitySM, assocValueObjectFlip('name')({}) )
 const IdentityMethodsWithoutName = parallel( IdentityIM, IdentitySM )
+
+const ConstMethodsWithName = parallel( IdentityIM, IdentitySM, assocValueObjectFlip('name')({}) )
+
 
 const functors = ({
   Identity: prepareInstance( ...IdentityMethodsWithName('Identity')),
   Right: prepareInstance( ...IdentityMethodsWithName('Right') ),
   Just: prepareInstance( ...IdentityMethodsWithName('Just') ),
+
+  Const: prepareInstance( ...ConstMethodsWithName('Const') ),
+  Left: prepareInstance( ...ConstMethodsWithName('Left') ),
+
   IdNoOptName: prepareInstance( ...IdentityMethodsWithoutName('IdNoOptName') )
 })
 
 const { Identity, Right, Just, IdNoOptName } = functors
+
+test('Identity Monad is a monoid in the category of Endofunctors', t => {
+
+})
+
 
 test('Identity called directly', t => {
   Identity(10)
